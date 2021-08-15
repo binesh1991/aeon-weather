@@ -1,4 +1,5 @@
 const express = require('express');
+const PORT = process.env.PORT || 3000;
 
 var app = express();
 var temp = 0, humidity = 0
@@ -54,6 +55,6 @@ app.post('/update', function (req, res) {
   res.end();
 })
 
-var server = app.listen(3000, function () {
-  console.log('Node server is running..');
+var server = app.listen(PORT, function () {
+  console.log('Node server is running on port ${PORT}...');
 });
