@@ -125,10 +125,13 @@ app.get('/', function (req, res) {
 })
 
 app.post('/update', function (req, res) {
-  temp = req.body.tempValue;
-  humidity = req.body.humidityValue;
-  lastUpdated = req.body.timestamp;
-  updateHistory();
+  if (!isNaN(parseInt(req.body.tempValue)) && !isNaN(parseInt(req.body.humidityValue)) && req.body.timestamp && req.body.timestamp.toString().length > 0) {
+    temp = parseInt(req.body.tempValue);
+    humidity = parseInt(req.body.humidityValue);
+    lastUpdated = req.body.timestamp;
+    updateHistory();
+  }
+  
   res.end();
 })
 
