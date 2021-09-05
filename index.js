@@ -145,6 +145,7 @@ async function updateHistory() {
     var res = await client.query(queryText, [temp, humidity, lastUpdated])
     await client.query("COMMIT")
 
+    /*
     queryText = "SELECT COUNT(id) as count FROM history"
     res = await client.query(queryText)
 
@@ -156,6 +157,7 @@ async function updateHistory() {
       res = await client.query(queryText, [count - 24])
       await client.query("COMMIT")
     }
+    */
   } catch (e) {
     await client.query("ROLLBACK")
     throw e
@@ -167,7 +169,7 @@ async function updateHistory() {
 async function readFromDb() {
   const client = await pool.connect()
 
-  client.query("SELECT * FROM history", (error, results) => {
+  client.query("SELECT t.* FROM (SELECT * FROM history ORDER BY id DESC LIMIT 24) AS t ORDER BY id ASC", (error, results) => {
     if (error) {
       console.log(error.stack)
     }
