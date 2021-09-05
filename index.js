@@ -140,13 +140,13 @@ async function updateHistory() {
   const values = [temp, humidity, lastUpdated]
   const client = await pool.connect()
 
-  client.query("INSERT INTO history(temperature, humidity, time_stamp) VALUES($1, $2, $3)", values, (error, results) => {
+  client.query("INSERT INTO history(temperature, humidity, time_stamp) VALUES($1, $2, $3); COMMIT;", values, (error, results) => {
     if (error) {
       console.log(error.stack)
     }
   })
 
-  client.query("SELECT COUNT(id) as count FROM history", (error, results) => {
+  client.query("SELECT COUNT(id) as count FROM history;", (error, results) => {
     if (error) {
       console.log(error.stack)
     }
@@ -154,7 +154,7 @@ async function updateHistory() {
     var count = results?.rows[0].count
 
     if (count > 24) {
-      client.query("DELETE FROM history WHERE ctid IN (SELECT ctid FROM history ORDER BY id LIMIT " + (count - 24) + ")", (error, results) => {
+      client.query("DELETE FROM history WHERE ctid IN (SELECT ctid FROM history ORDER BY id LIMIT " + (count - 24) + "); COMMIT;", (error, results) => {
         if (error) {
           console.log(error.stack)
         }
@@ -168,7 +168,7 @@ async function updateHistory() {
 async function readFromDb() {
   const client = await pool.connect()
 
-  client.query("SELECT * FROM history", (error, results) => {
+  client.query("SELECT * FROM history;", (error, results) => {
     if (error) {
       console.log(error.stack)
     }
