@@ -146,9 +146,9 @@ async function updateHistory() {
     await client.query("COMMIT")
 
     queryText = "SELECT COUNT(id) as count FROM history"
-    res = client.query(queryText)
+    res = await client.query(queryText)
 
-    var count = res?.rows[0].count
+    var count = res?.rows?.length > 0 ? res.rows[0].count : 0
 
     if (count > 24) {
       await client.query("BEGIN")
