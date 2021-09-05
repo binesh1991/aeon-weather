@@ -9,19 +9,6 @@ var history = []
 
 app.use(express.json())
 
-/*
-const pool = new Pool({
-  user: 'ozrjnikmxxdrqu',
-  host: 'ec2-34-249-247-7.eu-west-1.compute.amazonaws.com',
-  database: 'dv6kp51rk4fkq',
-  password: 'e6ab1f56cc68a4cc3c94421f47a5cb75209dad70ed2d38c8d65b557f4bddb383',
-  port: 5432,
-  ssl: {
-    rejectUnauthorized: false
-  }
-})
-*/
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -175,17 +162,11 @@ async function updateHistory() {
     }
   })
 
-  client.release();
+  client.release()
 }
 
 async function readFromDb() {
   const client = await pool.connect()
-
-  client.query("CREATE TABLE IF NOT EXISTS history (id SERIAL, temperature NUMERIC(3,1), humidity NUMERIC(3,1), time_stamp VARCHAR(50))", (error, results) => {
-    if (error) {
-      console.log(error.stack)
-    }
-  })
 
   client.query("SELECT * FROM history", (error, results) => {
     if (error) {
@@ -195,7 +176,7 @@ async function readFromDb() {
     history = results?.rows
   })
 
-  client.release();
+  client.release()
 }
 
 app.listen(PORT, function () {
