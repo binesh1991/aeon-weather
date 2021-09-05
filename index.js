@@ -137,38 +137,38 @@ app.post('/update', function (req, res) {
 })
 
 async function updateHistory() {
-  const values = [temp, humidity, lastUpdated]
+  const params = [temp, humidity, lastUpdated]
   const client = await pool.connect()
 
-  client.query("INSERT INTO history(temperature, humidity, time_stamp) VALUES($1, $2, $3); COMMIT;", values, (error, results) => {
-    if (error) {
-      console.log(error.stack)
-    }
-  })
+  try {
+    await client.query("BEGIN")
+    const queryText = "INSERT INTO history(temperature, humidity, time_stamp) VALUES($1, $2, $3)"
+    const res = await client.query(queryText, params)
+    await client.query("COMMIT")
 
-  client.query("SELECT COUNT(id) as count FROM history;", (error, results) => {
-    if (error) {
-      console.log(error.stack)
-    }
+    queryText = "SELECT COUNT(id) as count FROM history"
+    res = client.query(queryText)
 
-    var count = results?.rows[0].count
+    var count = res?.rows[0].count
 
     if (count > 24) {
-      client.query("DELETE FROM history WHERE ctid IN (SELECT ctid FROM history ORDER BY id LIMIT " + (count - 24) + "); COMMIT;", (error, results) => {
-        if (error) {
-          console.log(error.stack)
-        }
-      })
+      await client.query("BEGIN")
+      queryText = "DELETE FROM history WHERE ctid IN (SELECT ctid FROM history ORDER BY id LIMIT $1)"
+      res = await client.query(queryText, [count - 24])
+      await client.query("COMMIT")
     }
-  })
-
-  client.release()
+  } catch (e) {
+    await client.query("ROLLBACK")
+    throw e
+  } finally {
+    client.release()
+  }
 }
 
 async function readFromDb() {
   const client = await pool.connect()
 
-  client.query("SELECT * FROM history;", (error, results) => {
+  client.query("SELECT * FROM history", (error, results) => {
     if (error) {
       console.log(error.stack)
     }
