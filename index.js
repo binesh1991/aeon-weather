@@ -137,13 +137,12 @@ app.post('/update', function (req, res) {
 })
 
 async function updateHistory() {
-  const params = [temp, humidity, lastUpdated]
   const client = await pool.connect()
 
   try {
     await client.query("BEGIN")
-    const queryText = "INSERT INTO history(temperature, humidity, time_stamp) VALUES($1, $2, $3)"
-    const res = await client.query(queryText, params)
+    var queryText = "INSERT INTO history(temperature, humidity, time_stamp) VALUES($1, $2, $3)"
+    var res = await client.query(queryText, [temp, humidity, lastUpdated])
     await client.query("COMMIT")
 
     queryText = "SELECT COUNT(id) as count FROM history"
